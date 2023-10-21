@@ -30,7 +30,6 @@ struct infoPacientes{
 };
 
 
-
 void menuUsuario();
 void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio, int*);
 
@@ -63,8 +62,8 @@ int main(){
 
     int cantPacientes = 0;
 
-    char clave1[20] = {"Admin387$!"};
-    char clave2[20] = {"Pacientes552#$"};
+    char clave1[20] = {"1234"};
+    char clave2[20] = {"1234"};
 
     int opc, salir = 0;
 
@@ -114,8 +113,6 @@ int main(){
 
     return 0;
 }
-
-
 
 void menuUsuario(){
 
@@ -261,6 +258,7 @@ void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio
 }
 //Verificar si ese paciente no esta repetido
 void registrarPaciente(struct infoPacientes paciente, FILE *pacientes, int **cantPacientes) {
+
     char anioActual[3];
     char id[20]; // Declarar un arreglo para el ID
 
@@ -274,7 +272,6 @@ void registrarPaciente(struct infoPacientes paciente, FILE *pacientes, int **can
     char primTresLetrNom[10];
     strncpy(primTresLetrNom, paciente.nombre, 3);
     primTresLetrNom[3] = '\0';
-    printf("\nLetras: %s", primTresLetrNom);
 
     // Conseguir los últimos dos dígitos del año actual para formar el ID del paciente
     time_t t = time(NULL);
@@ -304,7 +301,7 @@ void registrarPaciente(struct infoPacientes paciente, FILE *pacientes, int **can
     fwrite(&paciente, sizeof(struct infoPacientes), 1, pacientes);
     fclose(pacientes);
 
-    (*cantPacientes)++;
+    **cantPacientes = **cantPacientes + 1;
 }
 
 void elimiarPaciente(struct infoPacientes paciente, FILE *pacientes){
@@ -433,16 +430,12 @@ void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paci
     horario.anio = tiempo_descompuesto->tm_year + 1900;
 
     char buscado[10];
-   
-    if(per == 0){
-        printf("Ingrese el id del usuario al cual se le asignara el recordatorio: ");
-        scanf("%[^\n]%*c", recordatorio.id);
 
-        strcpy(buscado, recordatorio.id);
-    }else if(per == 0){
-        //Hacer que funcione para usuario personal
+    printf("Ingrese el id del usuario al cual se le asignara el recordatorio: ");
+    scanf("%[^\n]%*c", recordatorio.id);
 
-    }
+    strcpy(buscado, recordatorio.id);
+
 
 
     int encontrado = 0;
@@ -458,23 +451,14 @@ void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paci
        
         if(strcmp(buscado,paciente.id) == 0){
             encontrado = 1;
-            printf("$");
+
             break;
         }
         pos++;
     }while(!feof(pacientes));
 
-    if(encontrado == 1){
-
-        fseek(pacientes, pos * sizeof(struct infoPacientes), SEEK_SET); // Ubicarse en la posición adecuada en el archivo
-        fread(&paciente, sizeof(struct infoPacientes), 1, pacientes);   // Leer la estructura desde el archivo
-        paciente.cantRecord = paciente.cantRecord + 1;                  // Modificar el valor de cantRecord
-        fseek(pacientes, pos * sizeof(struct infoPacientes), SEEK_SET); // Volver a la posición original en el archivo
-        fwrite(&paciente, sizeof(struct infoPacientes), 1, pacientes);  // Escribir la estructura modificada en el archivo
-    }
    
     fclose(pacientes);
-    printf("\nContiene %d registros\n", paciente.cantRecord); //quitar
     recordatorio.numRecor = paciente.cantRecord;
    
     printf("Que necesitas recordar: ");
@@ -525,7 +509,6 @@ void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paci
 
 
     //
-
    
     if(per == 1){
        
@@ -556,7 +539,6 @@ void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paci
         fclose(recordatorios);
    
     }
-   
         printf("Id: %s\n", recordatorio.id);
         printf("No. de recordatorio: %d\n", recordatorio.numRecor);
         printf("Cont: %d\n", recordatorio.cont);
@@ -584,4 +566,3 @@ void resetearRecordatoriosVencidos(){}
 void mostrarUsuarioConRecordatorios(){}
 
 void mostrarMiInformacion(){}
-//564
