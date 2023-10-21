@@ -29,44 +29,38 @@ struct infoPacientes{
     int cantRecord;
 };
 
-
+//Prototipos de menu y submenu
 void menuUsuario();
 void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio, int*);
 
+//Prototipos de funciones principales del sistema
 void registrarPaciente(struct infoPacientes paciente, FILE*, int**);
+void editarPaciente(struct infoPacientes paciente, FILE*);
 void elimiarPaciente(struct infoPacientes paciente, FILE*);
 void consultarPaciente(struct infoPacientes paciente, FILE*);
-
 void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paciente, FILE *recordatorios, FILE *pacientes, int per);
-void eliminarRecordatorio(); //mañana
-//hacer que ya se muestren en pantalla
-//pensar cada cuando saldran a la pantalla
-
+void editarRecordatorio();
+void eliminarRecordatorio();
+void consultarRecordatoriosPaciente();
+void mostrarPacientesConRecordatorios();
 void verRecordatoriosVencidos();
 void resetearRecordatoriosVencidos();
-
-void mostrarUsuarioConRecordatorios();
-void mostrarMiInformacion();
+void mostarRecordatoriosDeUsuario();
 
 
 
 int main(){
     
     struct datosRecor recordatorio;
-    struct infoPacientes paciente;
-
-    strcpy(recordatorio.id, "1");
     recordatorio.cont = 0;
+    struct infoPacientes paciente;
     paciente.cantRecord = 0;
 
-
-    int cantPacientes = 0;
+    int cantPacientes = 0; //se usa para un valor delid
+    int opc, salir = 0;
 
     char clave1[20] = {"1234"};
     char clave2[20] = {"1234"};
-
-    int opc, salir = 0;
-
 
     do{
         char clave[20];
@@ -74,14 +68,14 @@ int main(){
 
         printf("\nDesde que modo desea ingresar: \n\n1.- Administracion Personal\n2.- Administracion de pacientes\n0.- Salir\n\nopcion: ");
         scanf("%d%*c", &opc);
-    
+
         switch(opc){
-            
+
             case 1:
-                
+
                 printf("Ingrese la clave de acceso: ");
                 scanf("%s", clave);
-            
+
                 if(strcmp(clave, clave1) == 0){
                     printf("\n\nLogin exitoso a administracoin personal!!!\n");
                     menuUsuario();
@@ -114,6 +108,10 @@ int main(){
     return 0;
 }
 
+
+
+//Menu y submenu
+
 void menuUsuario(){
 
 
@@ -121,16 +119,27 @@ void menuUsuario(){
     FILE *recordatoriosPers;
 
     recordatoriosPers = fopen("info_persRecordatorios.bin","rb");
-   
+
     if(recordatoriosPers == NULL){
         recordatoriosPers = fopen("info_persRecordatorios.bin","wb");
         fclose(recordatoriosPers);
     }
-   
+
     do{
-        printf("\n\nAlerta de recordatorio");
-        printf("\n\n\nBienvenido Usuario\n");
-        printf("1.- Crear recordatorio\n2.- Eliminar recordatorio\n3.- Ver recordatorios vencidos\n4.- Resetear recordatorios vencidos\n5.- Mostrar mi informacion\n\nOpcion: ");
+        printf("\n\n* * * * * * * * * * * * * * * * * * * * *\n");
+        printf("*                                       *\n");
+        printf("*        Bienvenido Administrador       *\n");
+        printf("*                                       *\n");
+        printf("* * * * * * * * * * * * * * * * * * * * *\n\n");
+        
+        printf("1.- Crear recordatorio\n");
+        printf("2.- Editar recordatorio\n");
+        printf("3.- Eliminar recordatorio\n");
+        printf("4.- Mostrar mis recordatorios\n");
+        printf("5.- Ver mis recordatorios vencidos\n");
+        printf("6.- Resetear mis recordatorios vencidos\n");
+        printf("0.- Salir\n");
+        printf("Seleccione una opcion: ");
         scanf("%d%*c", &opc);
         
         switch(opc){
@@ -140,19 +149,23 @@ void menuUsuario(){
             break;
             
             case 2:
-                eliminarRecordatorio();
+                
             break;
             
             case 3:
-                verRecordatoriosVencidos();
+                
             break;
             
             case 4:
-                resetearRecordatoriosVencidos();
+                
             break;
             
             case 5:
-                mostrarMiInformacion();
+
+            break;
+
+            case 6:
+
             break;
             
             case 0:
@@ -165,7 +178,7 @@ void menuUsuario(){
 
 void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio, int *cantPacientes){
 
-     //Archivo de pacientes
+    //Archivo de pacientes
     FILE *pacientes;
     pacientes = fopen("info_pacientes.bin","rb");
 
@@ -173,12 +186,14 @@ void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio
         pacientes = fopen("info_pacientes.bin","wb");
         fclose(pacientes);
     }
-    //saber cuantos pacientes hay y asignar un nuevo valor a cantPacientes
+    fclose(pacientes);
+    //saber cuantos pacientes hay registrados y asignar un nuevo valor a cantPacientes
+
+
+    pacientes = fopen("info_pacientes.bin","rb+");
 
     int cantPac = 0;
 
-    pacientes = fopen("info_pacientes.bin","rb+");
-    
     while(!feof(pacientes)){
         fread(&paciente, sizeof(paciente), 1, pacientes);
         cantPac++;
@@ -186,9 +201,8 @@ void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio
 
     *cantPacientes = cantPac;
 
-    printf("id del primer paciente: %d\n", *cantPacientes);
-
     fclose(pacientes);
+
     
     //Archivo de recordatorios
     FILE *recordatorios;
@@ -198,6 +212,7 @@ void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio
         recordatorios = fopen("info_recordatorios.bin","wb");
         fclose(recordatorios);
     }
+    fclose(recordatorios);
     
     int opc, salir = 0, per = 0;
     
@@ -208,45 +223,68 @@ void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio
         printf("*                                       *\n");
         printf("* * * * * * * * * * * * * * * * * * * * *\n\n");
         
-        printf("1.- Registrar usuario\n2.- Eliminar usuario\n3.- Consultar usuario\n4.- Crear recordatorio\n5.- Eliminar recordatorio\n8.- Mostrar todos los usuarios con sus recordatorios\n0.- Salir\n\n");
-        
+        printf("1.- Registrar paciente\n");
+        printf("2.- Editar paciente registrado\n");
+        printf("3.- Eliminar paciente\n");
+        printf("4.- Consultar paciente\n");
+        printf("5.- Consular recordatorios de un paciente\n");
+        printf("6.- Crear recordatorio\n");
+        printf("7.- Editar recordatorio\n");
+        printf("8.- Eliminar recordatorio\n");
+        printf("9.- Mostrar pacientes y recordatorios\n");
+        printf("10.- Ver recordatorios vecidos\n");
+        printf("11.- Resetear Recordatorios vencidos\n");
+        printf("0.- Salir\n\n");
+
         printf("Seleccione una opcion: ");
         scanf("%d%*c", &opc);
 
         switch(opc){
-            
+
             case 1:
                 registrarPaciente(paciente, pacientes, &cantPacientes);
             break;
-            
+
             case 2:
+                editarPaciente(paciente, pacientes);
+            break;
+
+            case 3:
                 elimiarPaciente(paciente, pacientes);
             break;
-            
-            case 3:
+
+            case 4:
                 consultarPaciente(paciente, pacientes);
             break;
-            
-            case 4:
+
+            case 5:
+                consultarRecordatoriosPaciente();
+            break;
+
+            case 6:
                 crearRecordatorio(recordatorio, paciente, recordatorios, pacientes, per);
             break;
-            
-            case 5:
+
+            case 7:
+                editarRecordatorio();
+            break;
+
+            case 8:
                 eliminarRecordatorio();
             break;
-            
-            case 6:
+
+            case 9:
+                mostrarPacientesConRecordatorios();
+            break;
+
+            case 10:
                 verRecordatoriosVencidos();
             break;
-            
-            case 7:
+
+            case 11:
                 resetearRecordatoriosVencidos();
             break;
-            
-            case 8:
-                mostrarUsuarioConRecordatorios();
-            break;
-            
+
             case 0:
                 salir = 1;
             break;
@@ -256,7 +294,9 @@ void menuPacientes(struct infoPacientes paciente, struct datosRecor recordatorio
         }
     }while(salir == 0);
 }
-//Verificar si ese paciente no esta repetido
+
+//Funciones principales del sistema
+
 void registrarPaciente(struct infoPacientes paciente, FILE *pacientes, int **cantPacientes) {
 
     char anioActual[3];
@@ -304,6 +344,54 @@ void registrarPaciente(struct infoPacientes paciente, FILE *pacientes, int **can
     **cantPacientes = **cantPacientes + 1;
 }
 
+void editarPaciente(struct infoPacientes paciente, FILE *pacientes){
+
+    char id[10];            //Id buscado en el archivo pacientes          
+    int encontrado = 0;     //Saber si encontre al paciente
+
+    pacientes = fopen("info_pacientes.bin","rb+");      //Se abre el archivo en modo lectura y escritura (se ubica al inicio del archivo)
+
+    printf("\nIngrese el id del paciente a editar: ");
+    scanf("%49[^\n]%*c", id);
+
+    do{
+        fread(&paciente, sizeof(paciente), 1, pacientes);   //leer paciente del archivo
+
+        //si el id buscado es igual al id del paciente que se ha leido del archivo
+        if(strcmp(id,paciente.id) == 0){ 
+
+            encontrado = 1;
+            int opc;
+
+            printf("\n\nQue dato desea modificar del paciente?\n\n1.- Nombre\n2.- Edad\n\nopcion: ");
+            scanf("%d%*c", &opc); //NOTA: verificar dato introducido
+
+            if(opc == 1){
+                printf("\n\nIngrese el nuevo nombre que desea asignar al paciente: ");
+                scanf("%49[^\n]%*c", paciente.nombre);
+                
+                fseek(pacientes, -80, SEEK_CUR);                                    // Retrocede el tamanio de la estuctura leida
+                fwrite(&paciente, sizeof(struct infoPacientes), 1, pacientes);      //Sobre escribe la nueva estructura en la otra
+                printf("Nombre actualizado!!!\n");
+
+            }else if(opc == 2){
+                printf("Ingrese la nueva edad que desea asignar al paciente: ");
+                scanf("%d", &paciente.edad);
+
+                fseek(pacientes, -80, SEEK_CUR);                                    // Retrocede el tamanio de la estuctura leida
+                fwrite(&paciente, sizeof(struct infoPacientes), 1, pacientes);      //Sobre escribe la nueva estructura en la otra
+                printf("Edad actualizada con éxito.\n");
+            }
+            break;
+        }
+    }while(!feof(pacientes));
+
+    if(encontrado == 0){
+        printf("No se ha podido encontrar el usuario");
+    }
+    fclose(pacientes);
+}
+
 void elimiarPaciente(struct infoPacientes paciente, FILE *pacientes){
 
     char buscado[10];
@@ -311,10 +399,9 @@ void elimiarPaciente(struct infoPacientes paciente, FILE *pacientes){
    
 
     //Archivo temporal
-   
     FILE *temporal;
-   
-    temporal = fopen("temp.bin","rb");
+    temporal = fopen("temp.bin","rb+");
+
    
     if(temporal == NULL){
         temporal = fopen("temp.bin","wb");
@@ -328,9 +415,7 @@ void elimiarPaciente(struct infoPacientes paciente, FILE *pacientes){
     scanf("%[^\n]%*c", buscado);
 
     pacientes = fopen("info_pacientes.bin","rb+");
-   
-    temporal = fopen("temp.bin","rb+");
-       
+
     do{
         fread(&paciente, sizeof(paciente), 1, pacientes);
        
@@ -345,42 +430,46 @@ void elimiarPaciente(struct infoPacientes paciente, FILE *pacientes){
         }
    
     }while(!feof(pacientes));
+
+    fclose(temporal); // Cierra el archivo temporal antes de intentar renombrarlo
+    fclose(pacientes);
+
    
     if(encontrado == 1){
         printf("Se ha eliminado correctamente el usuario");
-    }else{
-        printf("No se ha podido eliminar el usuario");
-    }
 
-    //renombrar el archivo temporal como se llamaba el original y el original renombrarlo como se llamaba el temporal
+        
+        char temp[20] = "temp.bin";
+        char orig[20] = "info_pacientes.bin";
    
-    char temp[20] = "temp.bin";
-    char orig[20] = "info_pacientes.bin";
-   
-    if(rename(temp, orig) == 0){
-        printf("\nSe han renombrado con exito!!!");
+        if(remove(orig) == 0){
+
+            if(rename(temp, orig) == 0){
+                printf("\nSe han renombrado con exito!!!");
+            }else{
+                perror("Error al renombrar archivo");
+            }
+        }else{
+            perror("Error al eliminar original");
+        }
     }else{
-        perror("Error");
-    }
-   
-    fclose(temporal);
-    fclose(pacientes);
-   
+        printf("No se ha podido encontrar a el usuario");
+    } 
 }
 
 void consultarPaciente(struct infoPacientes paciente, FILE *pacientes){
-   
+
     char buscado[10];
     int encontrado = 0;
-   
+
     printf("\nIngrese la matricula del usuario a buscar: ");
     scanf("%[^\n]%*c", buscado);
-   
+
     pacientes = fopen("info_pacientes.bin","rb+");
-   
+
     do{
         fread(&paciente, sizeof(paciente), 1, pacientes);
-       
+
         if(strcmp(buscado,paciente.id) == 0){
             encontrado = 1;
             break;
@@ -390,9 +479,9 @@ void consultarPaciente(struct infoPacientes paciente, FILE *pacientes){
    
     if(encontrado == 1){
    
-        printf("\n%s\n", paciente.nombre);
-        printf("%d\n", paciente.edad);
-        printf("%s\n", paciente.id);
+        printf("\nNombre: %s\n", paciente.nombre);
+        printf("Edad: %d\n", paciente.edad);
+        printf("ID: %s\n", paciente.id);
        
     }else{
         printf("No se ha podido encontrar el usuario");
@@ -403,7 +492,7 @@ void consultarPaciente(struct infoPacientes paciente, FILE *pacientes){
 }
 
 void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paciente, FILE *recordatorios, FILE *pacientes, int per){
-   
+
     struct datosRecor recordRecuperado;
     int lim;
 
@@ -437,26 +526,7 @@ void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paci
     strcpy(buscado, recordatorio.id);
 
 
-
-    int encontrado = 0;
-    int pos = 0;    //ubicacion del paciente buscado en el archivo
-
     //ir a pacientes, buscar ese paciente y en su archivo modificar el valor de cantRecor + 1
-
-
-    pacientes = fopen("info_pacientes.bin","rb+");
-   
-    do{
-        fread(&paciente, sizeof(paciente), 1, pacientes);
-       
-        if(strcmp(buscado,paciente.id) == 0){
-            encontrado = 1;
-
-            break;
-        }
-        pos++;
-    }while(!feof(pacientes));
-
    
     fclose(pacientes);
     recordatorio.numRecor = paciente.cantRecord;
@@ -554,15 +624,16 @@ void crearRecordatorio(struct datosRecor recordatorio, struct infoPacientes paci
         printf("Proximo recordatorio: %d:%d\n\n",recordatorio.recordarHora, recordatorio.recordarMin);
 }
 
-void eliminarRecordatorio(){
+void editarRecordatorio(){}
 
+void eliminarRecordatorio(){}
 
-}
+void consultarRecordatoriosPaciente(){}
+
+void mostrarPacientesConRecordatorios(){}
 
 void verRecordatoriosVencidos(){}
 
 void resetearRecordatoriosVencidos(){}
 
-void mostrarUsuarioConRecordatorios(){}
-
-void mostrarMiInformacion(){}
+void mostrarRecordatoriosDeUsuario(){}
