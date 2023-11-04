@@ -30,6 +30,10 @@ struct infoAdministradores{
     char clave[10];
 };
 
+struct Medicamentos{
+    char medicamento[50];
+};
+
 
 void inicioDeSeccion(struct infoAdministradores administrador, FILE*);
 void registroDeAdministrador(struct infoAdministradores administrador, FILE*);
@@ -41,6 +45,8 @@ void editarPaciente(FILE*);
 void elimiarPaciente(FILE*);
 void consultarPaciente(FILE*);
 void crearRecordatorio(FILE*, struct infoAdministradores admin, FILE*);
+
+void inicializarMedicamentos(FILE *medicamentos);
 
 
 int main(){
@@ -63,7 +69,8 @@ int main(){
 
         printf("\tBienvenido\n\n");
         printf("1.- Iniciar seccion\n");
-        printf("2.- Registrarme\n\n");
+        printf("2.- Registrarme\n");
+        printf("0.- Salir\n\n");
         scanf("Opcion: ");
         scanf("%d%*c", &opc);
 
@@ -93,7 +100,7 @@ int main(){
 
 void inicioDeSeccion(struct infoAdministradores administrador, FILE *administradores){
 
-    struct infoAdministradores temp; //considerar pasar este en vez del todo el archivo
+    struct infoAdministradores temp;
 
     printf("Usuario: ");
     scanf("%49[^\n]%*c", administrador.usuario);
@@ -140,8 +147,7 @@ void registroDeAdministrador(struct infoAdministradores administrador, FILE *adm
         printf("\nCree una contraseña: ");
         scanf("%49[^\n]%*c", administrador.clave);
 
-        //verificar existencia de usuario en archivo administradores (evitar usuarios repetidos)
-
+        //verificar existencia de usuario en archivo administradores (para evitar usuarios repetidos)
         int duplicado = 0;
 
         administradores = fopen("info_administradores.bin","rb+");
@@ -194,8 +200,26 @@ void menu(struct infoAdministradores admin){
 
     if(medicamentos == NULL){
         medicamentos = fopen("info_medicamentos.bin","wb");
+        inicializarMedicamentos(medicamentos);
     }
     fclose(medicamentos);
+
+
+    //prueba de lectura de existencia de algun medicamento
+
+    struct Medicamentos medicamento;
+
+    medicamentos = fopen("info_medicamentos.bin","rb");
+
+    do{
+        fread(&medicamento, sizeof(medicamento), 1, medicamentos);
+        printf("%s\n", medicamento.medicamento);
+    }while(!feof(medicamentos));
+
+    fclose(medicamentos);
+
+    //fin de prueba
+
 
     int salir;
 
@@ -655,4 +679,39 @@ void crearRecordatorio(FILE *recordatorios, struct infoAdministradores admin, FI
     printf("Recordar Min: %d\n", recordatorio.recordarMin);
     printf("Fecha: %d-%d-%d\n", recordatorio.recordarDia, recordatorio.recordarMes, recordatorio.recordarAnio);
     printf("Proximo recordatorio: %d:%d\n\n",recordatorio.recordarHora, recordatorio.recordarMin);
+}
+
+void inicializarMedicamentos(FILE *medicamentos){
+
+    struct Medicamentos medicamento;
+
+    strcpy(medicamento.medicamento, "tomar paracetamol");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar ibuprofeno");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar aspirina");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar amoxicilina");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar omeprazol");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar loratadina");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar diazepam");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar cetirizina");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar clonazepam");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
+
+    strcpy(medicamento.medicamento, "tomar metformina");
+    fwrite(&medicamento, sizeof(struct Medicamentos), 1, medicamentos);
 }
