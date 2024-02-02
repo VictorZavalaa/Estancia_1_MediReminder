@@ -1,0 +1,68 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffd8e6;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden; /* Para ocultar el desbordamiento de los corazones */
+  }
+  
+  .container {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  h1 {
+    color: #ff1493;
+  }
+  
+  #tiempo-transcurrido {
+    font-size: 24px;
+    margin-top: 20px;
+  }
+  
+  .corazones-container {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 999;
+  }
+  
+.corazon {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    background-color: #ff1493;
+    clip-path: polygon(
+      50% 0%, 
+      61% 0%, 50% 15%, 39% 0%, 
+      0% 15%, 0% 38%, 50% 100%, 100% 38%, 
+      100% 15%, 61% 0%
+    );
+    transform-origin: 50% 50%;
+    animation: fly 3s ease-in-out infinite;
+  }
+  
+  @keyframes fly {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+
+
+
+  
+  
